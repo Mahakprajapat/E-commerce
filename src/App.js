@@ -1,56 +1,127 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
+import React, { useEffect } from 'react';
+
 import './App.css';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  Link
+} from "react-router-dom";
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import Home from './pages/Home';
+import CartPage from './pages/CartPage';
+import Checkout from './pages/Checkout';
+import Productsdetails from './pages/Productsdetail';
+import Protected from './features/auth/components/Protected';
+import { fetchItemsByUserIdAsync } from './features/Cart/CartSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectLoggedInUser } from './features/auth/authSlice';
+import PageNotFound from './pages/Page404';
+import OrderSuccessPage from './pages/OrderSuccessPage';
+import UserOrdersPage from './pages/UserOrdersPage';
+import UserProfilePage from './pages/UserProfilePage';
+import Logout from './features/auth/components/Logout';
+import ForgetPasswordPage from './pages/ForgetPassword';
+import ProtectedAdmin from './features/auth/components/ProtectedAdmin';
+import AdminHome from './pages/AdminHome';
+import ProductDetailAdmin from './features/admin/components/ProductDetailAdmin';
+import AdminProductFormPage from './pages/AdminProductFormPage';
+import AdminOrdersPage from './pages/AdminOrdersPage';
+
+
+
+const router = createBrowserRouter([
+  {
+    path:'/',
+    element: <Protected> <Home></Home> </Protected> ,
+  },
+  {
+    path:'/admin',
+    element:  <ProtectedAdmin> <AdminHome></AdminHome> </ProtectedAdmin>
+  },
+  {
+    path:'/login',
+    element:<LoginPage></LoginPage>,
+  },
+  {
+    path:'/signup',
+    element:<SignupPage></SignupPage> ,
+  },
+  {
+    path:'/cart',
+    element:<Protected> <CartPage></CartPage> </Protected> ,
+  },
+  {
+    path:'/checkout',
+    element: <Protected> <Checkout></Checkout> </Protected> ,
+  },
+  {
+    path:'/productdetail/:id',
+    element: <Protected> <Productsdetails></Productsdetails> </Protected> ,
+  },
+  {
+    path:'/admin/productdetail/:id',
+    element: <ProtectedAdmin> <ProductDetailAdmin></ProductDetailAdmin> </ProtectedAdmin> ,
+  },
+  {
+    path:'/admin/productform',
+    element: <ProtectedAdmin> <AdminProductFormPage></AdminProductFormPage> </ProtectedAdmin> ,
+  },
+  {
+    path:'/admin/productform/edit/:id',
+    element: (<ProtectedAdmin> <AdminProductFormPage></AdminProductFormPage> </ProtectedAdmin>) ,
+  },
+  {
+    path:'/admin/orders',
+    element: (<ProtectedAdmin> <AdminOrdersPage></AdminOrdersPage> </ProtectedAdmin>) ,
+  },
+
+
+
+  {
+    path:'/order-success/:id',
+    element: <OrderSuccessPage></OrderSuccessPage> ,
+  },
+  {
+    path:'/orders',
+    element: <UserOrdersPage></UserOrdersPage> 
+  },
+  {
+    path:'/profile', 
+    element: <UserProfilePage></UserProfilePage>
+  },
+  {
+    path:'/logout',
+    element: <Logout></Logout> 
+  },
+  {
+    path:'/forgetpassword',
+    element: <ForgetPasswordPage></ForgetPasswordPage>
+  },
+  {
+    path:'*',
+    element: <PageNotFound></PageNotFound> ,
+  }
+
+]);
 
 function App() {
+  // todo showing cart items beacurse user login ke ke sath hi show krna h 
+  const dispatch = useDispatch();
+  const user = useSelector(selectLoggedInUser);
+
+  useEffect(()=>{
+    if(!user){
+   dispatch (fetchItemsByUserIdAsync())
+    }
+  },[dispatch])
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+     
+        <RouterProvider router = {router} />
     </div>
   );
 }
